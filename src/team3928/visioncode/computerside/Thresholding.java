@@ -19,7 +19,7 @@ class Thresholding
 		return imgThreshed;
 	}
 
-	public CvSeq detectContours(IplImage img)
+	public static CvSeq detectContours(IplImage img)
 	{
 		return null;
 	}

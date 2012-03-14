@@ -30,6 +30,9 @@ public class Main {
 			}
 			
 			frameThreshed = Thresholding.thresholdForGreen(frame);
+			CvSeq contours = Thresholding.detectContours(frameThreshed);
+			
+			
 			cvShowImage("Threshold", frameThreshed);
 
 			
