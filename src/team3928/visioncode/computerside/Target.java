@@ -13,10 +13,10 @@ public class Target
 		//empty constructor for a target class
 	}
 	
-	public Target(CvSeq contour, IplImage img)
+	public Target(CvRect box, IplImage img)
 	{
 		originImage = img;
-		bBox = cvBoundingRect(contour, 1);
+		bBox = box;
 	}
 	
 	public void drawTarget()

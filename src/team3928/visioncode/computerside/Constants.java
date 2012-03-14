@@ -15,5 +15,8 @@ public class Constants
 	
 	public static final int THRESHOLD_DILATION_ITERATIONS = 4;
 	
-	public static final int FILTER_TARGETS_THRESHOLD_AREA = 100;
+	public static final int FILTER_TARGETS_THRESHOLD_AREA = 200;
+	
+	public static final float FILTER_TARGETS_ASPECTRATIO_MIN  = 0;
+	public static final float FILTER_TARGETS_ASPECTRATIO_MAX = 2;
 }

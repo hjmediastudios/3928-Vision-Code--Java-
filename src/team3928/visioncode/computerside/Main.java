@@ -42,13 +42,18 @@ public class Main {
 			while (contours != null)
 			{
 				double area = cvContourArea(contours, CV_WHOLE_SEQ, 0);
-				CvRect bBox = cvBoundingRect(contours, 1);
 				//				cvRectangle(frame, cvPoint(bBox.x(), bBox.y()), cvPoint(bBox.x() + bBox.width(), bBox.y() + bBox.height()), CvScalar.BLUE	, 2, 8, 0);
 				if (area > Constants.FILTER_TARGETS_THRESHOLD_AREA)
 				{
-					targetSet[numTargets] = new Target(contours, frame);
-					numTargets = numTargets + 1;
-					System.out.println(numTargets + " targets.");
+					CvRect bBox = cvBoundingRect(contours, 1);
+					float aspectRatio = (float) bBox.width()/bBox.height();
+
+					if (aspectRatio >= Constants.FILTER_TARGETS_ASPECTRATIO_MIN && aspectRatio <= Constants.FILTER_TARGETS_ASPECTRATIO_MAX) 
+					{
+						targetSet[numTargets] = new Target(bBox, frame);
+						numTargets = numTargets + 1;
+						System.out.println(numTargets + " targets.");
+					}
 				}
 				
 				contours = contours.h_next();
