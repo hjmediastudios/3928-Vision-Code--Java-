@@ -2,6 +2,8 @@ package team3928.visioncode.computerside;
 import static com.googlecode.javacv.cpp.opencv_core.*;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
+import com.googlecode.javacpp.Loader;
+
 class Thresholding
 {
 	public static IplImage thresholdForGreen(IplImage img)
@@ -15,12 +17,15 @@ class Thresholding
 			cvDilate(imgThreshed, imgThreshed, null, 1);
 		for (int i=0; i<Constants.THRESHOLD_DILATION_ITERATIONS; i++)
 			cvErode(imgThreshed, imgThreshed, null, 1);
-		
 		return imgThreshed;
 	}
 
 	public static CvSeq detectContours(IplImage img)
 	{
-		return null;
+		CvMemStorage contourStorage = cvCreateMemStorage(0);
+		CvSeq contours = new CvSeq(null);
+		cvFindContours(img, contourStorage, contours, Loader.sizeof(CvContour.class), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+		return contours;
 	}
+	
 }

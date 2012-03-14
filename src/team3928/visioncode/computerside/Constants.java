@@ -14,4 +14,6 @@ public class Constants
 	public static final int THRESHOLD_VAL_MAX = 255;
 	
 	public static final int THRESHOLD_DILATION_ITERATIONS = 4;
+	
+	public static final int FILTER_TARGETS_THRESHOLD_AREA = 300;
 }

@@ -10,6 +10,8 @@ public class Main {
 	static IplImage frame;
 	static IplImage frameThreshed;
 	static CvCapture camera;
+	static Target[] targetSet = new Target[50];
+	static int numTargets = 0;
 
 	public static void main(String[] args)
 	{
@@ -32,8 +34,16 @@ public class Main {
 			frameThreshed = Thresholding.thresholdForGreen(frame);
 			CvSeq contours = Thresholding.detectContours(frameThreshed);
 			
-			
+			cvDrawContours(frameThreshed, contours, CvScalar.BLUE, CvScalar.GREEN, -1, 1, 8);
 			cvShowImage("Threshold", frameThreshed);
+			//Select targets
+			while (contours != null && !contours.isNull())
+			{
+				double area = cvContourArea(contours, CV_WHOLE_SEQ, 0);
+				System.out.println("Area: " + area);
+				
+				contours = contours.h_next();
+			}
 
 			
 			
