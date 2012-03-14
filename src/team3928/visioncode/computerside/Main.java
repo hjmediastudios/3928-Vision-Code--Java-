@@ -53,17 +53,21 @@ public class Main {
 						targetSet[numTargets] = new Target(bBox, frame);
 						numTargets = numTargets + 1;
 						System.out.println(numTargets + " targets.");
-					}
+					}          
 				}
 				
 				contours = contours.h_next();
 			}
 			
+			//Draw crosshairs
+			cvLine(frame, cvPoint(0, 240), cvPoint(640, 240), CvScalar.RED, 1, 8, 0);
+			cvLine(frame, cvPoint(320, 0), cvPoint(320, 480), CvScalar.RED, 1, 8, 0);
+			
 			if (numTargets > 0)
 			{
 				for (int i=0; i<numTargets; i++)
 				{
-					targetSet[i].drawTarget();
+					targetSet[i].drawTarget(cvScalarAll((255/numTargets)*i));
 					System.out.println("Drew Target " + i);
 				}
 			}
