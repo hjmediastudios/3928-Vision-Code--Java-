@@ -24,7 +24,7 @@ class Thresholding
 	{
 		CvMemStorage contourStorage = cvCreateMemStorage(0);
 		CvSeq contours = new CvSeq(null);
-		cvFindContours(img, contourStorage, contours, Loader.sizeof(CvContour.class), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+		cvFindContours(img, contourStorage, contours, Loader.sizeof(CvContour.class), CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 		return contours;
 	}
 	

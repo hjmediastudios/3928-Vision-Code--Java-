@@ -6,7 +6,7 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 public class Target 
 {
 	private static IplImage originImage;
-	private static CvRect bBox;
+	private CvRect bBox;
 	
 	public Target()
 	{
@@ -19,7 +19,7 @@ public class Target
 		bBox = cvBoundingRect(contour, 1);
 	}
 	
-	public static void drawTarget()
+	public void drawTarget()
 	{
 		cvRectangle(originImage, cvPoint(bBox.x(), bBox.y()), cvPoint(bBox.x() + bBox.width(), bBox.y() + bBox.height()), CvScalar.BLUE	, 2, 8, 0);
 	}
