@@ -5,7 +5,7 @@ import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 public class Target 
 {
-	private static IplImage originImage;
+	private IplImage originImage;
 	private CvRect bBox;
 	private CvSeq contour;
 	
@@ -70,5 +70,15 @@ public class Target
 	public double getRectangularity()
 	{
 		return (cvContourArea(contour, CV_WHOLE_SEQ, 0)/getArea()) * 100;
+	}
+	
+	public int navInfo_getXOffset()
+	{
+		return getCenter().x() - (originImage.cvSize().width() / 2);
+	}
+	
+	public double navInfo_getDistance()
+	{
+		return 0.5; //TODO add calculation after calibration
 	}
 }

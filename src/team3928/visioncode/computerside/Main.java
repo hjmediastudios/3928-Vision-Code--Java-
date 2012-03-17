@@ -16,6 +16,11 @@ public class Main {
 	static int numTargets = 0;
 	static CvFont font = new CvFont(1);
 
+	static int navInfo_xOffset;
+	static double navInfo_distance;
+
+
+
 	public static void main(String[] args)
 	{
 
@@ -24,6 +29,7 @@ public class Main {
 		if (camera == null)
 		{
 			System.out.println("ERROR: Capture not initialized.");
+			System.exit(-1);
 		}
 
 		while (true)
@@ -31,80 +37,90 @@ public class Main {
 			frame = cvQueryFrame(camera);
 			if (frame == null)
 			{
-				System.out.println("ERROR: No frame found.");
+				System.out.println("ERROR: No frame found.");        
 			}
-
-			frameThreshed = Thresholding.thresholdForGreen(frame);
-			CvSeq contours = Thresholding.detectContours(frameThreshed);
-
-			//Select targets
-			numTargets = 0;
-			
-			while (contours != null)
+			else
 			{
-				double area = cvContourArea(contours, CV_WHOLE_SEQ, 0);
-				//				cvRectangle(frame, cvPoint(bBox.x(), bBox.y()), cvPoint(bBox.x() + bBox.width(), bBox.y() + bBox.height()), CvScalar.BLUE	, 2, 8, 0);
-				if (area > Constants.FILTER_TARGETS_THRESHOLD_AREA)
-				{
-					CvRect bBox = cvBoundingRect(contours, 1);
-					double aspectRatio = (double) bBox.width()/bBox.height();
 
-					if (aspectRatio >= Constants.FILTER_TARGETS_ASPECTRATIO_MIN && aspectRatio <= Constants.FILTER_TARGETS_ASPECTRATIO_MAX) 
-					{
-						targetSet[numTargets] = new Target(contours, frame);
-						numTargets = numTargets + 1;
-						System.out.println(numTargets + " targets.");
-					}          
-				}
-				
-				contours = contours.h_next();
-			}
-			
-			//Draw crosshairs
-			cvLine(frame, cvPoint(0, 240), cvPoint(640, 240), CvScalar.RED, 1, 8, 0);
-			cvLine(frame, cvPoint(320, 0), cvPoint(320, 480), CvScalar.RED, 1, 8, 0);
-			
-			int lowestTargetIndex = -1;
-			int currentHighestY = -5000;
-			
-			if (numTargets > 0)
-			{	
-				//pick lowest target
-				for (int i=0; i<numTargets; i++)
+				frameThreshed = Thresholding.thresholdForGreen(frame);
+				CvSeq contours = Thresholding.detectContours(frameThreshed);
+
+				//Select targets
+				numTargets = 0;
+
+				while (contours != null)
 				{
-					int currentY = targetSet[i].getCenter().y();
-					if (currentY > currentHighestY)
+					double area = cvContourArea(contours, CV_WHOLE_SEQ, 0);
+					//				cvRectangle(frame, cvPoint(bBox.x(), bBox.y()), cvPoint(bBox.x() + bBox.width(), bBox.y() + bBox.height()), CvScalar.BLUE	, 2, 8, 0);
+					if (area > Constants.FILTER_TARGETS_THRESHOLD_AREA)
 					{
-						currentHighestY = currentY;
-						lowestTargetIndex = i;
+						CvRect bBox = cvBoundingRect(contours, 1);
+						double aspectRatio = (double) bBox.width()/bBox.height();
+
+						if (aspectRatio >= Constants.FILTER_TARGETS_ASPECTRATIO_MIN && aspectRatio <= Constants.FILTER_TARGETS_ASPECTRATIO_MAX) 
+						{
+							targetSet[numTargets] = new Target(contours, frame);
+							numTargets = numTargets + 1;
+						}          
 					}
+
+					contours = contours.h_next();
 				}
+
+				//Draw crosshairs
+				cvLine(frame, cvPoint(0, 240), cvPoint(640, 240), CvScalar.RED, 1, 8, 0);
+				cvLine(frame, cvPoint(320, 0), cvPoint(320, 480), CvScalar.RED, 1, 8, 0);
+
+				int lowestTargetIndex = -1;
+				int currentHighestY = -5000;
+
+				if (numTargets > 0)
+				{	
+					//pick lowest target
+					for (int i=0; i<numTargets; i++)
+					{
+						int currentY = targetSet[i].getCenter().y();
+						if (currentY > currentHighestY)
+						{
+							currentHighestY = currentY;
+							lowestTargetIndex = i;
+						}
+					}
+
+					//draw targets
+					for (int i=0; i<numTargets; i++)
+					{
+						targetSet[i].drawTarget(CvScalar.RED);
+						cvPutText(frame, " " + targetSet[i].getWidth(), cvPoint(targetSet[i].getLeftX(), targetSet[i].getTopY() - 5), cvFont(1.0, 1), cvScalar(255, 150, 150, 0)); //Width
+						cvPutText(frame, " " + targetSet[i].getHeight(), cvPoint(targetSet[i].getLeftX() - 30, targetSet[i].getCenter().y()), cvFont(1.0, 1), CvScalar.GREEN); //Height
+						cvPutText(frame, " " + targetSet[i].getArea(), cvPoint(targetSet[i].getRightX(), targetSet[i].getTopY() + 10), cvFont(1.0, 1), CvScalar.YELLOW); //Area
+						cvPutText(frame, " " + targetSet[i].getAspectRatio(), cvPoint(targetSet[i].getRightX(), targetSet[i].getTopY() + 22), cvFont(1.0, 1), CvScalar.MAGENTA); //Aspect ratio
+						cvPutText(frame, " " + targetSet[i].getRectangularity(), cvPoint(targetSet[i].getRightX(), targetSet[i].getTopY() + 34), cvFont(1.0, 1), CvScalar.BLUE); //Aspect ratio
+
+
+
+					}
+
+					//highlight highest target
+					cvRectangle(frame, cvPoint(targetSet[lowestTargetIndex].getLeftX() - 1, targetSet[lowestTargetIndex].getTopY() - 1), 
+							cvPoint(targetSet[lowestTargetIndex].getRightX() + 1, targetSet[lowestTargetIndex].getBottomY() + 1), CvScalar.GREEN, 2, 8, 0);
+
+
+
+					//Set navigation info
+					navInfo_xOffset = targetSet[lowestTargetIndex].navInfo_getXOffset();
+					navInfo_distance = targetSet[lowestTargetIndex].navInfo_getDistance();
+					//Print it out as a debug measure, TODO remove this eventually
+					System.out.println("Nav info: ");
+					System.out.println("    X-offset: " + navInfo_xOffset);
+					System.out.println("    Distance: " + navInfo_distance);
+					//TODO Send it to the robot
+				} //if (numTgts > 0)
 				
-				//draw targets
-				for (int i=0; i<numTargets; i++)
-				{
-					targetSet[i].drawTarget(CvScalar.RED);
-					cvPutText(frame, " " + targetSet[i].getWidth(), cvPoint(targetSet[i].getLeftX(), targetSet[i].getTopY() - 5), cvFont(1.0, 1), cvScalar(255, 150, 150, 0)); //Width
-					cvPutText(frame, " " + targetSet[i].getHeight(), cvPoint(targetSet[i].getLeftX() - 30, targetSet[i].getCenter().y()), cvFont(1.0, 1), CvScalar.GREEN); //Height
-					cvPutText(frame, " " + targetSet[i].getArea(), cvPoint(targetSet[i].getRightX(), targetSet[i].getTopY() + 10), cvFont(1.0, 1), CvScalar.YELLOW); //Area
-					cvPutText(frame, " " + targetSet[i].getAspectRatio(), cvPoint(targetSet[i].getRightX(), targetSet[i].getTopY() + 22), cvFont(1.0, 1), CvScalar.MAGENTA); //Aspect ratio
-					cvPutText(frame, " " + targetSet[i].getRectangularity(), cvPoint(targetSet[i].getRightX(), targetSet[i].getTopY() + 34), cvFont(1.0, 1), CvScalar.BLUE); //Aspect ratio
+				cvShowImage("Targets", frame);
 
-
-
-				}
-				
-				//highlight highest target
-				cvRectangle(frame, cvPoint(targetSet[lowestTargetIndex].getLeftX() - 1, targetSet[lowestTargetIndex].getTopY() - 1), 
-						cvPoint(targetSet[lowestTargetIndex].getRightX() + 1, targetSet[lowestTargetIndex].getBottomY() + 1), CvScalar.GREEN, 2, 8, 0);
-				
-			}
-
-
-			cvShowImage("Targets", frame);
-
-
-			cvWaitKey(0);
+				cvWaitKey(0);
+			}// if (frame == null)
 		} //end main loop
 	}
 }
