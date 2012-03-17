@@ -7,16 +7,18 @@ public class Target
 {
 	private static IplImage originImage;
 	private CvRect bBox;
+	private CvSeq contour;
 	
 	public Target()
 	{
 		//empty constructor for a target class
 	}
 	
-	public Target(CvRect box, IplImage img)
+	public Target(CvSeq ctr, IplImage img)
 	{
+		contour = ctr;
 		originImage = img;
-		bBox = box;
+		bBox = cvBoundingRect(ctr, 1);
 	}
 	
 	public void drawTarget(CvScalar color)
@@ -47,5 +49,26 @@ public class Target
 	public CvPoint getCenter()
 	{
 		return cvPoint(getLeftX()+(bBox.width()/2), getTopY()+(bBox.height()/2));
+	}
+	
+	public int getWidth()
+	{
+		return bBox.width();
+	}
+	public int getHeight()
+	{
+		return bBox.height();
+	}
+	public int getArea()
+	{
+		return bBox.width() * bBox.height();
+	}
+	public double getAspectRatio()
+	{
+		return (double) bBox.width() / bBox.height();
+	}
+	public double getRectangularity()
+	{
+		return (cvContourArea(contour, CV_WHOLE_SEQ, 0)/getArea()) * 100;
 	}
 }

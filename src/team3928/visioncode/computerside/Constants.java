@@ -17,6 +17,6 @@ public class Constants
 	
 	public static final int FILTER_TARGETS_THRESHOLD_AREA = 200;
 	
-	public static final float FILTER_TARGETS_ASPECTRATIO_MIN  = 0;
-	public static final float FILTER_TARGETS_ASPECTRATIO_MAX = 2;
+	public static final double FILTER_TARGETS_ASPECTRATIO_MIN  = 0.5;
+	public static final double FILTER_TARGETS_ASPECTRATIO_MAX = 1.5;
 }
